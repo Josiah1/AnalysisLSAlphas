@@ -229,8 +229,10 @@ int main(int argc, char **argv)
 
     for (int iad = 0; iad < 4; iad++)
     {
-        int nEvts = singlesPool[iad].size();
-        for (unsigned int entry = 0; entry < nEvts / 2 - 1; entry++)
+        size_t nEvts = singlesPool[iad].size();
+        if (nEvts == 0)
+            continue;
+        for (size_t entry = 0; entry < nEvts / 2 - 1; entry++)
         {
             int prompt = entry;
             int delayed = entry + nEvts / 2;
@@ -281,8 +283,10 @@ int main(int argc, char **argv)
 
     for (int iad = 0; iad < 4; iad++)
     {
-        int nEvts = singlesPool[iad].size();
-        for (unsigned int entry = 0; entry < nEvts / 2 - 1; entry++)
+        size_t nEvts = singlesPool[iad].size();
+        if (nEvts == 0)
+            continue;
+        for (size_t entry = 0; entry < nEvts / 2 - 1; entry++)
         {
             int delayed = entry;
             int prompt = entry + nEvts / 2;
