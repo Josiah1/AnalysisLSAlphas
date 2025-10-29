@@ -6,6 +6,7 @@
 #include <iostream>
 #include "TChain.h"
 #include "TH2D.h"
+#include "TFile.h"
 
 using namespace std;
 
@@ -17,19 +18,21 @@ int EndJob();
 int main(int argc, char **argv)
 {
     string inputfile;
+    string ouputfile;
 
     TChain *ReadinChain = new TChain("Event");
 
-    if (argc != 2)
+    if (argc != 3)
     {
         cout << "Usage:" << endl;
-        cout << "    AnalysisLSAlphas inputfile" << endl;
+        cout << "    AnalysisLSAlphas inputfile ouputfile" << endl;
         cout << endl;
         return 1;
     }
     else
     {
         inputfile = argv[1];
+        ouputfile = argv[2];
         ReadinChain->Add(inputfile.c_str());
     }
 
@@ -105,6 +108,29 @@ int main(int argc, char **argv)
             cout << "Warning: Read error" << endl;
         }
 
+        int iad = TR->Det - 1;
+
+        if (TR->Fold == 2)
+        {
+            if (TR->T2PrevSubEvt[1] > Bi212_Tpd_threshold_low && TR->T2PrevSubEvt[1] < Bi212_Tpd_threshold_high)
+            {
+                h2dEpd_Bi212[iad]->Fill(TR->E[1], TR->E[0]);
+                h2dZR2_Bi212[iad]->Fill(TR->Z[0] / 1e3, (TR->X[0] * TR->X[0] + TR->Y[0] * TR->Y[0]) / 1e6);
+                if (TR->E[0] > Bi212_Ep_threshold_low && TR->E[0] < Bi212_Ep_threshold_high && TR->E[1] > Bi212_Ed_threshold_low && TR->E[1] < Bi212_Ed_threshold_high)
+                {
+                    h1dDistance_Bi212[iad]->Fill(TR->D2First[1]);
+                }
+            }
+            if (TR->T2PrevSubEvt[1] > Bi214_Tpd_threshold_low && TR->T2PrevSubEvt[1] < Bi214_Tpd_threshold_high)
+            {
+                h2dEpd_Bi214[iad]->Fill(TR->E[1], TR->E[0]);
+                h2dZR2_Bi214[iad]->Fill(TR->Z[0] / 1e3, (TR->X[0] * TR->X[0] + TR->Y[0] * TR->Y[0]) / 1e6);
+                if (TR->E[0] > Bi214_Ep_threshold_low && TR->E[0] < Bi214_Ep_threshold_high && TR->E[1] > Bi214_Ed_threshold_low && TR->E[1] < Bi214_Ed_threshold_high)
+                {
+                    h1dDistance_Bi214[iad]->Fill(TR->D2First[1]);
+                }
+            }
+        }
         /***  End of each entry   ***/
     }
 
@@ -116,7 +142,19 @@ int main(int argc, char **argv)
         return 0;
     }
 
-    return 1;
+    TFile *ouFile = new TFile(ouputfile.c_str(), "RECREATE");
+    for (int i = 0; i < 4; i++)
+    {
+        h1dDistance_Bi212[i]->Write();
+        h1dDistance_Bi214[i]->Write();
+        h2dEpd_Bi212[i]->Write();
+        h2dEpd_Bi214[i]->Write();
+        h2dZR2_Bi212[i]->Write();
+        h2dZR2_Bi214[i]->Write();
+    }
+    ouFile->Close();
+
+    return 0;
 }
 
 int BeginJob()
