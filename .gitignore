@@ -1,3 +1,2 @@
-main.o
-EventReaderDict.o
-EventReader.o
+*.o
+AnalysisLSAlphas
