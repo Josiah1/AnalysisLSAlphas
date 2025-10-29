@@ -7,6 +7,7 @@
 #include "TChain.h"
 #include "TH2D.h"
 #include "TFile.h"
+#include <fstream>
 
 using namespace std;
 
@@ -19,13 +20,14 @@ int main(int argc, char **argv)
 {
     string inputfile;
     string ouputfile;
+    string infofile;
 
     TChain *ReadinChain = new TChain("Event");
 
-    if (argc != 3)
+    if (argc != 4)
     {
         cout << "Usage:" << endl;
-        cout << "    AnalysisLSAlphas inputfile ouputfile" << endl;
+        cout << "    AnalysisLSAlphas inputfile ouputfile infofile" << endl;
         cout << endl;
         return 1;
     }
@@ -33,6 +35,7 @@ int main(int argc, char **argv)
     {
         inputfile = argv[1];
         ouputfile = argv[2];
+        infofile = argv[3];
         ReadinChain->Add(inputfile.c_str());
     }
 
@@ -153,6 +156,21 @@ int main(int argc, char **argv)
         h2dZR2_Bi214[i]->Write();
     }
     ouFile->Close();
+
+    ofstream outputFile;
+    outputFile.open(infofile.c_str());
+
+    if (outputFile.is_open())
+    {
+
+        outputFile << "Good Ending." << endl;
+        outputFile.close();
+    }
+    else
+    {
+        cerr << "错误：无法打开文件进行写入！" << endl;
+        return 1;
+    }
 
     return 0;
 }
