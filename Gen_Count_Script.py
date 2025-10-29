@@ -21,7 +21,7 @@ if __name__ == "__main__":
 
     StreamListDir = "/dybfs2/users/lijj16/DATA/Retw/IBD/H_IBD_0p7MeV/Output/"+site
 
-    basedir = "./counting_result"
+    basedir = "./counting_result/"
 
     print(basedir)
 
@@ -33,6 +33,8 @@ if __name__ == "__main__":
     ensure_dir(scriptDir)
     ensure_dir(outputDir)
     ensure_dir(infoDir)
+
+    job_count = 0
 
     ListOfList = os.listdir(StreamListDir)
     for runIdx, run in enumerate(sorted(ListOfList)):
@@ -70,7 +72,7 @@ if __name__ == "__main__":
     # This part is to create a parent script to revoke all job scripts by procid
     ensure_dir(basedir + "parent/" + site)
     parent_script = basedir + "parent/" + site + "/parent_script.sh"
-    
+
     FILE = open(parent_script, "w")
     FILE.writelines("#!/bin/bash \n")
     FILE.writelines("job_scripts=(" + cshfiles + ")\n")
