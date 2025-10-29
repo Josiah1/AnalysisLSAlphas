@@ -140,10 +140,10 @@ int main(int argc, char **argv)
                                         Form("h1dDistance_Bi214_%d; Distance [m]; Events/ 1 mm", i + 1),
                                         5000, 0, 5);
         h1dDistanceBkg_Bi214[i] = new TH1D(Form("h1dDistanceBkg_Bi214_%d", i + 1),
-                                           Form("h1dDistanceBkg_Bi214_%d; DistanceBkg [m]; Events/ 1 mm", i + 1),
+                                           Form("h1dDistanceBkg_Bi214_%d; Distance [m]; Events/ 1 mm", i + 1),
                                            5000, 0, 5);
         h1dDistanceSig_Bi214[i] = new TH1D(Form("h1dDistanceSig_Bi214_%d", i + 1),
-                                           Form("h1dDistanceSig_Bi214_%d; DistanceSig [m]; Events/ 1 mm", i + 1),
+                                           Form("h1dDistanceSig_Bi214_%d; Distance [m]; Events/ 1 mm", i + 1),
                                            5000, 0, 5);
     }
 
@@ -338,25 +338,32 @@ int main(int argc, char **argv)
     // normalizing background spectra and doing the subtraction
     for (int iad = 0; iad < 4; iad++)
     {
+        if (h1dDistanceBkg_Bi212[iad]->GetEntries() == 0)
+            continue;
         double Ncan_212 = h1dDistance_Bi212[iad]->Integral(h1dDistance_Bi212[iad]->FindBin(2000),
                                                            h1dDistance_Bi212[iad]->FindBin(5000));
-        double Nbkg_212 = h1dDistanceBkg_Bi212[iad]->Integral(h1dDistance_Bi212[iad]->FindBin(2000),
-                                                              h1dDistance_Bi212[iad]->FindBin(5000));
+        double Nbkg_212 = h1dDistanceBkg_Bi212[iad]->Integral(h1dDistanceBkg_Bi212[iad]->FindBin(2000),
+                                                              h1dDistanceBkg_Bi212[iad]->FindBin(5000));
         double scaleE_212 = Ncan_212 / Nbkg_212;
 
         h1dDistanceSig_Bi212[iad]->Add(h1dDistance_Bi212[iad], h1dDistanceBkg_Bi212[iad], 1., -scaleE_212);
-        h2dEpdSig_Bi212[iad]->Add(h2dEpd_Bi212[iad], h2dEpdBkg_Bi212[iad], 1., -1.);
-        h2dZR2Sig_Bi212[iad]->Add(h2dZR2_Bi212[iad], h2dZR2Bkg_Bi212[iad], 1., -1.);
+        h2dEpdSig_Bi212[iad]->Add(h2dEpd_Bi212[iad], h2dEpdBkg_Bi212[iad], 1., -scaleE_212);
+        h2dZR2Sig_Bi212[iad]->Add(h2dZR2_Bi212[iad], h2dZR2Bkg_Bi212[iad], 1., -scaleE_212);
+    }
 
+    for (int iad = 0; iad < 4; iad++)
+    {
+        if (h1dDistanceBkg_Bi214[iad]->GetEntries() == 0)
+            continue;
         double Ncan_214 = h1dDistance_Bi214[iad]->Integral(h1dDistance_Bi214[iad]->FindBin(2000),
                                                            h1dDistance_Bi214[iad]->FindBin(5000));
-        double Nbkg_214 = h1dDistanceBkg_Bi214[iad]->Integral(h1dDistance_Bi214[iad]->FindBin(2000),
-                                                              h1dDistance_Bi214[iad]->FindBin(5000));
+        double Nbkg_214 = h1dDistanceBkg_Bi214[iad]->Integral(h1dDistanceBkg_Bi214[iad]->FindBin(2000),
+                                                              h1dDistanceBkg_Bi214[iad]->FindBin(5000));
         double scaleE_214 = Ncan_214 / Nbkg_214;
 
         h1dDistanceSig_Bi214[iad]->Add(h1dDistance_Bi214[iad], h1dDistanceBkg_Bi214[iad], 1., -scaleE_214);
-        h2dEpdSig_Bi214[iad]->Add(h2dEpd_Bi214[iad], h2dEpdBkg_Bi214[iad], 1., -1.);
-        h2dZR2Sig_Bi214[iad]->Add(h2dZR2_Bi214[iad], h2dZR2Bkg_Bi214[iad], 1., -1.);
+        h2dEpdSig_Bi214[iad]->Add(h2dEpd_Bi214[iad], h2dEpdBkg_Bi214[iad], 1., -scaleE_214);
+        h2dZR2Sig_Bi214[iad]->Add(h2dZR2_Bi214[iad], h2dZR2Bkg_Bi214[iad], 1., -scaleE_214);
     }
 
     /* End Job */
@@ -370,25 +377,35 @@ int main(int argc, char **argv)
     TFile *ouFile = new TFile(ouputfile.c_str(), "RECREATE");
     for (int i = 0; i < 4; i++)
     {
+        if (h1dDistanceBkg_Bi212[i]->GetEntries() == 0)
+            continue;
         h1dDistance_Bi212[i]->Write();
-        h1dDistance_Bi214[i]->Write();
         h2dEpd_Bi212[i]->Write();
-        h2dEpd_Bi214[i]->Write();
         h2dZR2_Bi212[i]->Write();
-        h2dZR2_Bi214[i]->Write();
 
         h1dDistanceBkg_Bi212[i]->Write();
-        h1dDistanceBkg_Bi214[i]->Write();
         h2dEpdBkg_Bi212[i]->Write();
-        h2dEpdBkg_Bi214[i]->Write();
         h2dZR2Bkg_Bi212[i]->Write();
-        h2dZR2Bkg_Bi214[i]->Write();
 
         h1dDistanceSig_Bi212[i]->Write();
-        h1dDistanceSig_Bi214[i]->Write();
         h2dEpdSig_Bi212[i]->Write();
-        h2dEpdSig_Bi214[i]->Write();
         h2dZR2Sig_Bi212[i]->Write();
+    }
+
+    for (int i = 0; i < 4; i++)
+    {
+        if (h1dDistanceBkg_Bi214[i]->GetEntries() == 0)
+            continue;
+        h1dDistance_Bi214[i]->Write();
+        h2dEpd_Bi214[i]->Write();
+        h2dZR2_Bi214[i]->Write();
+
+        h1dDistanceBkg_Bi214[i]->Write();
+        h2dEpdBkg_Bi214[i]->Write();
+        h2dZR2Bkg_Bi214[i]->Write();
+
+        h1dDistanceSig_Bi214[i]->Write();
+        h2dEpdSig_Bi214[i]->Write();
         h2dZR2Sig_Bi214[i]->Write();
     }
     ouFile->Close();
