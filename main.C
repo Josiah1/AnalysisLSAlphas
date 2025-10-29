@@ -1,13 +1,13 @@
 //
 //   An example tree looper
 //
-#include "TreeReader.h"
+#include "EventReader.h"
 #include <string>
 #include <iostream>
 #include "TChain.h"
 using namespace std;
 
-TreeReader *TR;
+EventReader *TR;
 
 int BeginJob();
 int EndJob();
@@ -16,12 +16,12 @@ int main(int argc, char **argv)
 {
     string inputfile;
 
-    TChain *ReadinChain = new TChain("Stream");
+    TChain *ReadinChain = new TChain("Event");
 
     if (argc != 2)
     {
         cout << "Usage:" << endl;
-        cout << "    Looper inputfile" << endl;
+        cout << "    AnalysisLSAlphas inputfile" << endl;
         cout << endl;
         return 1;
     }
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
 
     // Load the ReadinChain Tree
     // Get the ReadinChain Tree reader
-    TR = new TreeReader;
+    TR = new EventReader;
     TR->Init(ReadinChain);
 
     /* Begin Job */
