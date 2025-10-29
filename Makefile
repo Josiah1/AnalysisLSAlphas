@@ -7,9 +7,9 @@ OBJECTS=$(SOURCES:.C=.o)
 EXECUTABLE=AnalysisLSAlphas
 
 CFLAGS += $(shell $(ROOTSYS)/bin/root-config --cflags)
-LDFLAGS += $(shell $(ROOTSYS)/bin/root-config --libs) 
+LDFLAGS += $(shell $(ROOTSYS)/bin/root-config --libs) -lstdc++
 
-CFLAGS += -I../
+CFLAGS += -I../ 
 
 all: $(SOURCES) $(EXECUTABLE)
 
