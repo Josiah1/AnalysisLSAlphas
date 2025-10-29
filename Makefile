@@ -2,9 +2,9 @@ CC=gcc
 CC+=-DDEBUG -g
 CFLAGS=-c -Wall
 LDFLAGS=
-SOURCES=Looper.C TreeReader.C TreeReaderDict.C 
+SOURCES=main.C EventReader.C EventReaderDict.C 
 OBJECTS=$(SOURCES:.C=.o)
-EXECUTABLE=Looper
+EXECUTABLE=AnalysisLSAlphas
 
 CFLAGS += $(shell $(ROOTSYS)/bin/root-config --cflags)
 LDFLAGS += $(shell $(ROOTSYS)/bin/root-config --libs) 
