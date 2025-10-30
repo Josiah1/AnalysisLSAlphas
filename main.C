@@ -1,6 +1,12 @@
-//
-//   An example tree looper
-//
+/**
+ * @file main.C
+ * @brief Main analysis program for Bi212 and Bi214 cascade events
+ *
+ * This program analyzes nuclear cascade events from Bi212-Po212 and Bi214-Po214
+ * decay chains. It processes ROOT tree data, applies selection criteria,
+ * and generates histograms for signal and background analysis.
+ */
+
 #include "EventReader.h"
 #include "TChain.h"
 #include "TFile.h"
@@ -15,18 +21,23 @@
 
 using namespace std;
 
+// Global event reader pointer
 EventReader *TR;
 
+// Function declarations
 int BeginJob();
 int EndJob();
 
 int main(int argc, char **argv) {
+  // Command line arguments
   string inputfile;
   string ouputfile;
   string infofile;
 
+  // Create TChain for reading ROOT tree
   TChain *ReadinChain = new TChain("Event");
 
+  // Check command line arguments
   if (argc != 4) {
     cout << "Usage:" << endl;
     cout << "    AnalysisLSAlphas inputfile ouputfile infofile" << endl;
@@ -39,21 +50,33 @@ int main(int argc, char **argv) {
     ReadinChain->Add(inputfile.c_str());
   }
 
-  // criteria for Bi212-Po212 cascade
-  double Bi212_Ep_threshold_low = 0.7;
-  double Bi212_Ep_threshold_high = 3;
-  double Bi212_Ed_threshold_low = 1;
-  double Bi212_Ed_threshold_high = 1.5;
-  double Bi212_Tpd_threshold_low = 1e-6;
-  double Bi212_Tpd_threshold_high = 3e-6;
+  // Selection criteria for Bi212-Po212 cascade events
+  // Bi212 decays to Po212 with alpha emission, Po212 decays with alpha emission
+  double Bi212_Ep_threshold_low =
+      0.7;                            // Lower threshold for prompt energy (MeV)
+  double Bi212_Ep_threshold_high = 3; // Upper threshold for prompt energy (MeV)
+  double Bi212_Ed_threshold_low = 1; // Lower threshold for delayed energy (MeV)
+  double Bi212_Ed_threshold_high =
+      1.5; // Upper threshold for delayed energy (MeV)
+  double Bi212_Tpd_threshold_low =
+      1e-6; // Lower threshold for prompt-delayed time (s)
+  double Bi212_Tpd_threshold_high =
+      3e-6; // Upper threshold for prompt-delayed time (s)
 
-  // criteria for Bi214-Po214 cascade
-  double Bi214_Ep_threshold_low = 1.5;
-  double Bi214_Ep_threshold_high = 3.5;
-  double Bi214_Ed_threshold_low = 0.7;
-  double Bi214_Ed_threshold_high = 1.2;
-  double Bi214_Tpd_threshold_low = 10e-6;
-  double Bi214_Tpd_threshold_high = 400e-6;
+  // Selection criteria for Bi214-Po214 cascade events
+  // Bi214 decays to Po214 with beta emission, Po214 decays with alpha emission
+  double Bi214_Ep_threshold_low =
+      1.5; // Lower threshold for prompt energy (MeV)
+  double Bi214_Ep_threshold_high =
+      3.5; // Upper threshold for prompt energy (MeV)
+  double Bi214_Ed_threshold_low =
+      0.7; // Lower threshold for delayed energy (MeV)
+  double Bi214_Ed_threshold_high =
+      1.2; // Upper threshold for delayed energy (MeV)
+  double Bi214_Tpd_threshold_low =
+      10e-6; // Lower threshold for prompt-delayed time (s)
+  double Bi214_Tpd_threshold_high =
+      400e-6; // Upper threshold for prompt-delayed time (s)
 
   struct EventBrief {
     double E;
@@ -181,60 +204,78 @@ int main(int argc, char **argv) {
     singlesPool[iad].clear();
   }
 
-  /* The main loop over every stream entries */
-  /* --------------------------------------- */
+  // Main event processing loop
+  // --------------------------
   unsigned int entries = ReadinChain->GetEntries();
+  cout << "Processing " << entries << " events..." << endl;
+
   for (unsigned int entry = 0; entry < entries; entry++) {
+    // Load tree and get entry
     unsigned int localentry = ReadinChain->LoadTree(entry);
     int ret = TR->GetEntry(localentry);
     if (ret == 0) {
-      cout << "Warning: Read error" << endl;
+      cout << "Warning: Read error at entry " << entry << endl;
+      continue;
     }
 
+    // Get detector ID (0-3)
     int iad = TR->Det - 1;
 
+    // Process cascade events (Fold == 2)
     if (TR->Fold == 2) {
+      // Bi212-Po212 cascade selection
       if (TR->T2PrevSubEvt[1] > Bi212_Tpd_threshold_low &&
           TR->T2PrevSubEvt[1] < Bi212_Tpd_threshold_high) {
+        // Fill energy correlation histogram for events with distance < 500 mm
         if (TR->D2First[1] < 500) {
           h2dEpd_Bi212[iad]->Fill(TR->E[1], TR->E[0]);
         }
+        // Fill distance histogram for events within energy thresholds
         if (TR->E[0] > Bi212_Ep_threshold_low &&
             TR->E[0] < Bi212_Ep_threshold_high &&
             TR->E[1] > Bi212_Ed_threshold_low &&
             TR->E[1] < Bi212_Ed_threshold_high) {
-          h1dDistance_Bi212[iad]->Fill(TR->D2First[1] / 1e3);
+          h1dDistance_Bi212[iad]->Fill(TR->D2First[1] / 1e3); // Convert mm to m
         }
+        // Fill position histogram for events with all selection criteria
         if (TR->D2First[1] < 500 && TR->E[0] > Bi212_Ep_threshold_low &&
             TR->E[0] < Bi212_Ep_threshold_high &&
             TR->E[1] > Bi212_Ed_threshold_low &&
             TR->E[1] < Bi212_Ed_threshold_high) {
           h2dZR2_Bi212[iad]->Fill((TR->X[0] * TR->X[0] + TR->Y[0] * TR->Y[0]) /
-                                      1e6,
-                                  TR->Z[0] / 1e3);
+                                      1e6,         // Convert mm² to m²
+                                  TR->Z[0] / 1e3); // Convert mm to m
         }
       }
+
+      // Bi214-Po214 cascade selection
       if (TR->T2PrevSubEvt[1] > Bi214_Tpd_threshold_low &&
           TR->T2PrevSubEvt[1] < Bi214_Tpd_threshold_high) {
+        // Fill energy correlation histogram for events with distance < 500 mm
         if (TR->D2First[1] < 500) {
           h2dEpd_Bi214[iad]->Fill(TR->E[1], TR->E[0]);
         }
+        // Fill distance histogram for events within energy thresholds
         if (TR->E[0] > Bi214_Ep_threshold_low &&
             TR->E[0] < Bi214_Ep_threshold_high &&
             TR->E[1] > Bi214_Ed_threshold_low &&
             TR->E[1] < Bi214_Ed_threshold_high) {
-          h1dDistance_Bi214[iad]->Fill(TR->D2First[1] / 1e3);
+          h1dDistance_Bi214[iad]->Fill(TR->D2First[1] / 1e3); // Convert mm to m
         }
+        // Fill position histogram for events with all selection criteria
         if (TR->D2First[1] < 500 && TR->E[0] > Bi214_Ep_threshold_low &&
             TR->E[0] < Bi214_Ep_threshold_high &&
             TR->E[1] > Bi214_Ed_threshold_low &&
             TR->E[1] < Bi214_Ed_threshold_high) {
           h2dZR2_Bi214[iad]->Fill((TR->X[0] * TR->X[0] + TR->Y[0] * TR->Y[0]) /
-                                      1e6,
-                                  TR->Z[0] / 1e3);
+                                      1e6,         // Convert mm² to m²
+                                  TR->Z[0] / 1e3); // Convert mm to m
         }
       }
-    } else if (TR->Fold == 1) {
+    }
+    // Process single events (Fold == 1) for background estimation
+    else if (TR->Fold == 1) {
+      // Store single events with time > 1.5 ms for background construction
       if (TR->T2PrevSubEvt[0] > 1.5e-3) {
         EventBrief aEvt;
         aEvt.E = TR->E[0];
@@ -244,7 +285,6 @@ int main(int argc, char **argv) {
         singlesPool[iad].push_back(aEvt);
       }
     }
-    /***  End of each entry   ***/
   }
 
   for (int iad = 0; iad < 4; iad++) {
@@ -355,12 +395,8 @@ int main(int argc, char **argv) {
 
   // normalizing background spectra and doing the subtraction
   for (int iad = 0; iad < 4; iad++) {
-    double Ncan_212 =
-        h1dDistance_Bi212[iad]->Integral(h1dDistance_Bi212[iad]->FindBin(2000),
-                                         h1dDistance_Bi212[iad]->FindBin(5000));
-    int Nbkg_212 = h1dDistanceBkg_Bi212[iad]->Integral(
-        h1dDistanceBkg_Bi212[iad]->FindBin(2000),
-        h1dDistanceBkg_Bi212[iad]->FindBin(5000));
+    double Ncan_212 = h1dDistance_Bi212[iad]->Integral(2000, 5000);
+    int Nbkg_212 = h1dDistanceBkg_Bi212[iad]->Integral(2000, 5000);
     if (Nbkg_212 == 0)
       continue;
 
@@ -375,12 +411,8 @@ int main(int argc, char **argv) {
   }
 
   for (int iad = 0; iad < 4; iad++) {
-    double Ncan_214 =
-        h1dDistance_Bi214[iad]->Integral(h1dDistance_Bi214[iad]->FindBin(2000),
-                                         h1dDistance_Bi214[iad]->FindBin(5000));
-    double Nbkg_214 = h1dDistanceBkg_Bi214[iad]->Integral(
-        h1dDistanceBkg_Bi214[iad]->FindBin(2000),
-        h1dDistanceBkg_Bi214[iad]->FindBin(5000));
+    double Ncan_214 = h1dDistance_Bi214[iad]->Integral(2000, 5000);
+    int Nbkg_214 = h1dDistanceBkg_Bi214[iad]->Integral(2000, 5000);
     if (Nbkg_214 == 0)
       continue;
 
@@ -397,7 +429,7 @@ int main(int argc, char **argv) {
   /* End Job */
   /* ------- */
   if (EndJob() == 0) {
-    cout << "BeginJob failed" << endl;
+    cout << "EndJob failed" << endl;
     return 0;
   }
 
