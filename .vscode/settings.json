@@ -2,6 +2,7 @@
     "files.associations": {
         "main.C": "cpp",
         "ios": "cpp",
-        "iostream": "cpp"
+        "iostream": "cpp",
+        "main_lowE.C": "cpp"
     }
 }
