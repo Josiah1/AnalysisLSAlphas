@@ -2,22 +2,32 @@ CC=gcc
 CC+=-DDEBUG -g
 CFLAGS=-c -Wall
 LDFLAGS=
-SOURCES=main.C EventReader.C EventReaderDict.C 
-OBJECTS=$(SOURCES:.C=.o)
-EXECUTABLE=AnalysisLSAlphas
+COMMON_SOURCES=EventReader.C EventReaderDict.C
+COMMON_OBJECTS=$(COMMON_SOURCES:.C=.o)
+
+MAIN1_SOURCES=main.C
+MAIN1_OBJECTS=$(MAIN1_SOURCES:.C=.o)
+EXECUTABLE1=AnalysisLSAlphas
+
+MAIN2_SOURCES=main_lowE.C
+MAIN2_OBJECTS=$(MAIN2_SOURCES:.C=.o)
+EXECUTABLE2=AnalysisLSAlphas_lowE
 
 CFLAGS += $(shell $(ROOTSYS)/bin/root-config --cflags)
 LDFLAGS += $(shell $(ROOTSYS)/bin/root-config --libs) -lstdc++
 
 CFLAGS += -I../ 
 
-all: $(SOURCES) $(EXECUTABLE)
+all: $(EXECUTABLE1) $(EXECUTABLE2)
 
-$(EXECUTABLE): $(OBJECTS)
-	$(CC) $(LDFLAGS) $(OBJECTS) -o $@
+$(EXECUTABLE1): $(MAIN1_OBJECTS) $(COMMON_OBJECTS)
+	$(CC) $(LDFLAGS) $(MAIN1_OBJECTS) $(COMMON_OBJECTS) -o $@
+
+$(EXECUTABLE2): $(MAIN2_OBJECTS) $(COMMON_OBJECTS)
+	$(CC) $(LDFLAGS) $(MAIN2_OBJECTS) $(COMMON_OBJECTS) -o $@
 
 .C.o:
 	$(CC) $(CFLAGS) $< -o $@
 
 clean:
-	rm -f *.o; rm $(EXECUTABLE)
+	rm -f *.o $(EXECUTABLE1) $(EXECUTABLE2)
