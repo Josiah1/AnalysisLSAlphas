@@ -89,5 +89,5 @@ if __name__ == "__main__":
                 print(
                     f"Counts/rate for {isotope} at {site}, IAD {iad}:",
                     counts,
-                    counts / live_times[site][iad - 1],
+                    [count / live_times[site][iad - 1] for count in counts],
                 )
