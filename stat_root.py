@@ -59,14 +59,14 @@ def inte_nevts_by_ZR2(site, iad, isotope):
     inte_num_GdLS = hist_obj.Integral(
         hist_obj.GetXaxis().FindBin(criteria_set["GdLS"]["R2"][0]),
         hist_obj.GetXaxis().FindBin(criteria_set["GdLS"]["R2"][1]),
-        hist_obj.GetXaxis().FindBin(criteria_set["GdLS"]["Z"][0]),
-        hist_obj.GetXaxis().FindBin(criteria_set["GdLS"]["Z"][1]),
+        hist_obj.GetYaxis().FindBin(criteria_set["GdLS"]["Z"][0]),
+        hist_obj.GetYaxis().FindBin(criteria_set["GdLS"]["Z"][1]),
     )
     inte_num_Total = hist_obj.Integral(
         hist_obj.GetXaxis().FindBin(criteria_set["Total"]["R2"][0]),
         hist_obj.GetXaxis().FindBin(criteria_set["Total"]["R2"][1]),
-        hist_obj.GetXaxis().FindBin(criteria_set["Total"]["Z"][0]),
-        hist_obj.GetXaxis().FindBin(criteria_set["Total"]["Z"][1]),
+        hist_obj.GetYaxis().FindBin(criteria_set["Total"]["Z"][0]),
+        hist_obj.GetYaxis().FindBin(criteria_set["Total"]["Z"][1]),
     )
     inte_num_LS = inte_num_Total - inte_num_GdLS
 
