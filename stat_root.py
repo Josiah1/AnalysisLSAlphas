@@ -86,8 +86,7 @@ if __name__ == "__main__":
         for isotope in isotopes:
             for iad in [1, 2, 3, 4]:
                 counts = inte_nevts_by_ZR2(site, iad, isotope)
+                rates = ([count / live_times[site][iad - 1] for count in counts],)
                 print(
-                    f"Counts/rate for {isotope} at {site}, IAD {iad}:",
-                    counts,
-                    [count / live_times[site][iad - 1] for count in counts],
+                    f"Rates for {isotope} at {site}, IAD {iad}: {rates[0]:.2f} {rates[1]:.2f} {rates[2]:.2f} {rates[3]:.2f}",
                 )
