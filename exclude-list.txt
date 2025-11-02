@@ -1,0 +1,4 @@
+counting_result_lowE
+counting_result
+.git
+*.o
