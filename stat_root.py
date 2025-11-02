@@ -89,5 +89,5 @@ if __name__ == "__main__":
                 rates = [count / live_times[site][iad - 1] for count in counts]
                 if counts[2] > 0:
                     print(
-                        f"Rates for {isotope} at {site}, IAD {iad}: {rates[0]:.2e} {rates[1]:.2e} (unit: Hz, GdLS, LS)",
+                        f"Rates for {isotope} at {site}, IAD {iad}: {rates[0]:.2e}(GdLS) {rates[1]:.2e}(LS) [Hz]",
                     )
